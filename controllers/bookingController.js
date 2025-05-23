@@ -95,7 +95,7 @@ async function getAllBookings(req, res) {
     }
 }
 
-// only for users
+// only for admin
 async function getBookedTicketByEvent(req, res) {
     const { eventId } = req.params;
     try {

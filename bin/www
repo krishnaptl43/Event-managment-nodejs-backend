@@ -4,11 +4,11 @@
  * Module dependencies.
  */
 
-const ConnectToDb =  require('../db/dbconnect');
+const transporter = require("../config/nodemailer");
+const ConnectToDb = require('../db/dbconnect');
 const app = require('../app');
 const debug = require('debug')('express-generator:server');
 const http = require('http');
-const main = require("../db/dbconnect")
 require('dotenv').config()
 
 /**
@@ -32,6 +32,12 @@ server.listen(port, async () => {
   console.log(`server is running http://localhost:${port}`);
   // Connect to the database
   await ConnectToDb()
+  try {
+    await transporter.verify()
+    console.log("Server is ready to take our messages");
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 server.on('error', onError);

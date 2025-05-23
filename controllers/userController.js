@@ -2,6 +2,10 @@ const User = require("../model/userModel")
 const ApiResponse = require("../response")
 const Bcrypt = require("../config/hashing")
 const JWT = require("../config/jsonwebtoken")
+const transporter = require("../config/nodemailer");
+require("dotenv").config();
+const fs = require('fs');
+const path = require('path')
 
 async function userRegister(req, res) {
     const { username, email, password } = req.body
@@ -13,7 +17,35 @@ async function userRegister(req, res) {
         if (!user) {
             return res.json(new ApiResponse(false, null, "user register failed"))
         }
-        return res.json(new ApiResponse(true, user, "user registered"))
+
+        const projectRoot = process.cwd();
+
+        const csvFilePath = path.join(projectRoot, "uploads", "image.jpg");
+
+        let mailOption = {
+            from: process.env.ADMIN_MAIL_ID,
+            to: user.email,
+            subject: "For Registration",
+            html: `<h1>Dear ${user.username}</h1>
+             <h2>Thank You For Registration</h2>`,
+            attachments: [
+                {
+                    filename: "image.jpg",
+                    content: fs.createReadStream(csvFilePath)
+                },
+            ]
+        }
+
+        transporter.sendMail(mailOption, (err) => {
+
+            if (err) {
+                return res.json(new ApiResponse(true, user, "user registered Mail Not Sent"))
+            }
+
+            return res.json(new ApiResponse(true, user, "user registered And WellCome Mail Sent Successfully"))
+
+        })
+
     } catch (error) {
         return res.json(new ApiResponse(false, error, "user register failed"));
     }
