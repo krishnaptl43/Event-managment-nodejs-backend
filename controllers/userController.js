@@ -3,9 +3,8 @@ const ApiResponse = require("../response")
 const Bcrypt = require("../config/hashing")
 const JWT = require("../config/jsonwebtoken")
 const transporter = require("../config/nodemailer");
+const { trusted } = require("mongoose");
 require("dotenv").config();
-const fs = require('fs');
-const path = require('path')
 
 async function userRegister(req, res) {
     const { username, email, password } = req.body
@@ -18,22 +17,12 @@ async function userRegister(req, res) {
             return res.json(new ApiResponse(false, null, "user register failed"))
         }
 
-        const projectRoot = process.cwd();
-
-        const csvFilePath = path.join(projectRoot, "uploads", "image.jpg");
-
         let mailOption = {
             from: process.env.ADMIN_MAIL_ID,
             to: user.email,
             subject: "For Registration",
             html: `<h1>Dear ${user.username}</h1>
              <h2>Thank You For Registration</h2>`,
-            attachments: [
-                {
-                    filename: "image.jpg",
-                    content: fs.createReadStream(csvFilePath)
-                },
-            ]
         }
 
         transporter.sendMail(mailOption, (err) => {
@@ -89,5 +78,23 @@ async function getUserById(req, res) {
     }
 }
 
+async function uploadProfile(req, res) {
 
-module.exports = { userRegister, userLogin, getUserById }
+    let url = `${req.protocol}://${req.host}/${req.file.path?.replaceAll("\\", "/")}`
+    try {
+
+        let user = await User.findByIdAndUpdate(req.data._id, { image: url }, { new: true });
+
+        if (!user) {
+            return res.json(new ApiResponse(false, null, "uploads failed"))
+        }
+        return res.json(new ApiResponse(true, user, "profile Upload Successfully"))
+
+    } catch (error) {
+        return res.json(new ApiResponse(false, error, "uploads failed"));
+    }
+
+}
+
+
+module.exports = { userRegister, userLogin, getUserById, uploadProfile }
