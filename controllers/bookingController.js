@@ -99,6 +99,13 @@ async function getAllBookings(req, res) {
 async function getBookedTicketByEvent(req, res) {
     const { eventId } = req.params;
     try {
+
+        let findEvent = await Event.findOne({ creator: req.data._id, _id: eventId });
+
+        if (!findEvent) {
+            return res.json(new ApiResponse(false, null, "Event Not Found"))
+        }
+
         let booking = await bookingModel.find({ event: eventId }).populate("attendee")
         if (!booking) {
             return res.json(new ApiResponse(false, null, "No Bookings Available"))
@@ -109,42 +116,5 @@ async function getBookedTicketByEvent(req, res) {
     }
 }
 
-async function deleteEvent(req, res) {
-    const { eventId } = req.params;
-    try {
-        let event = await Event.findByIdAndUpdate(eventId, { isDelete: true }, { new: true })
 
-        if (!event) {
-            return res.json(new ApiResponse(false, null, "Event Delete failed"))
-        }
-        return res.json(new ApiResponse(true, event, "Event Delete Success"))
-
-    } catch (error) {
-        return res.json(new ApiResponse(false, error, "Error"))
-    }
-}
-
-async function editEvent(req, res) {
-    const { eventId } = req.params;
-    const { title, description, category, slots } = req.body;
-    try {
-
-        let event = await Event.findOne({ _id: eventId, isCancel: false, isDelete: false })
-
-        if (!event) {
-            return res.json(new ApiResponse(false, null, "Event Not Found"))
-        }
-
-        let update = await Event.findByIdAndUpdate(eventId, { title, description, category, slots }, { new: true }).populate("creator")
-
-        if (!update) {
-            return res.json(new ApiResponse(false, null, "Event updated failed"))
-        }
-        return res.json(new ApiResponse(true, update, "Event updated Success"))
-
-    } catch (error) {
-        return res.json(new ApiResponse(false, error, "Error"))
-    }
-}
-
-module.exports = { bookEvent, cancelTicket, getAllBookings, deleteEvent, editEvent, getBookedTicketByEvent }
+module.exports = { bookEvent, cancelTicket, getAllBookings, getBookedTicketByEvent }

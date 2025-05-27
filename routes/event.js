@@ -1,11 +1,14 @@
 var express = require('express');
 const { adminMiddleware } = require("../middleware/Middleware");
-const { getAllEvents, createEvent, cancelEvent, deleteEvent, editEvent } = require('../controllers/eventContoller');
+const { getAllEvents, createEvent, cancelEvent, deleteEvent, editEvent,getAllEventsByCreator } = require('../controllers/eventContoller');
 
 var router = express.Router();
 
 // http://localhost:9000/api/event
 router.get("/", getAllEvents)
+
+// http://localhost:9000/api/event/event-by-creator
+router.get("/event-by-creator", adminMiddleware, getAllEventsByCreator)
 
 // http://localhost:9000/api/event/create
 router.post("/create", adminMiddleware, createEvent)
