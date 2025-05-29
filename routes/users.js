@@ -1,7 +1,10 @@
 var express = require('express');
 const { userRegister, userLogin, getUserById, uploadProfile } = require('../controllers/userController');
 const { userMiddleware } = require("../middleware/Middleware");
-const upload = require('../config/multer');
+const multer = require('multer');
+const { storage, profileFilter } = require('../config/multer');
+
+const upload = multer({ storage, fileFilter: profileFilter, limits: { fileSize: 1024 * 1024 } })
 
 var router = express.Router();
 
@@ -15,7 +18,7 @@ router.post("/register", userRegister)
 router.post("/login", userLogin)
 
 // http://localhost:9000/api/user/upload-profile
-router.put("/upload-profile", upload.single("image"), userMiddleware, uploadProfile)
+router.put("/upload-profile", userMiddleware, upload.single("image"), uploadProfile)
 
 
 module.exports = router;

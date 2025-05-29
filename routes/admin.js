@@ -2,7 +2,11 @@ var express = require('express');
 const { getUserById, uploadProfile } = require('../controllers/userController');
 const { adminMiddleware } = require("../middleware/Middleware");
 const { adminLogin } = require('../controllers/adminController');
-const upload = require("../config/multer");
+const multer = require('multer');
+const { storage, profileFilter } = require('../config/multer');
+
+const upload = multer({ storage, fileFilter: profileFilter, limits: { fileSize: 1024 * 1024 } })
+
 
 var router = express.Router();
 

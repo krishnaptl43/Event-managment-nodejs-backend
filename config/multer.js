@@ -1,5 +1,5 @@
 const { diskStorage } = require('multer');
-const multer = require('multer');
+const path = require('path');
 
 const storage = diskStorage({
     destination: (req, file, cb) => {
@@ -10,6 +10,12 @@ const storage = diskStorage({
     }
 });
 
-const upload = multer({ storage });
+function profileFilter(req, file, cb) {
+    var ext = path.extname(file.originalname);
+    if (ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
+        return cb(new Error('Only images are allowed'))
+    }
+    cb(null, true)
+}
 
-module.exports = upload;
+module.exports = { storage, profileFilter };
