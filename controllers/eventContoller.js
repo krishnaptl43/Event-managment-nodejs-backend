@@ -16,6 +16,8 @@ async function createEvent(req, res) {
         return res.json(new ApiResponse(false, null, "booking Date must be After 15 Days Of Event Creation"))
     }
 
+    const url = `${req.protocol}://${req.host}/${req.file.path?.replaceAll("\\", "/")}`
+
     try {
 
         let event = await Event.create({
@@ -28,7 +30,8 @@ async function createEvent(req, res) {
             per_slot_price: price,
             venue,
             booking_start_date,
-            creator: req.data._id
+            creator: req.data._id,
+            thumbnail: url
         })
 
         if (!event) {

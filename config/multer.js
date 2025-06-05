@@ -1,12 +1,28 @@
 const { diskStorage } = require('multer');
+const fs = require('fs')
 const path = require('path');
 
 const storage = diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/profile")
+
+        if (file.fieldname === "thumbnail") {
+            let dir = "uploads/event"
+
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync("uploads/event", { recursive: true })
+            }
+
+            cb(null, "uploads/event");
+        }
+
+        if (file.fieldname === "image") {
+            cb(null, "uploads/profile");
+        }
+
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + "-" + file.originalname)
+        let ext = path.extname(file.originalname);
+        cb(null, Date.now() + "-" + file.fieldname + ext)
     }
 });
 
